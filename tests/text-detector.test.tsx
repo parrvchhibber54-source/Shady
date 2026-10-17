@@ -1,0 +1,15 @@
+// @vitest-environment jsdom
+import {afterEach,it,expect,vi} from 'vitest';
+import {cleanup,fireEvent,render,screen} from '@testing-library/react';
+import '@testing-library/jest-dom/vitest';
+import Detector from '../app/detector';
+import {sampleText,textFixture} from './text-fixtures';
+afterEach(()=>{cleanup();vi.unstubAllGlobals();});
+function open(available=true){render(<Detector available textAvailable={available}/>);fireEvent.click(screen.getByRole('tab',{name:/^Text/}));}
+function paste(t=sampleText){fireEvent.change(screen.getByLabelText('Text to analyze'),{target:{value:t}});}
+it('shows unavailable and preserves image mode',()=>{open(false);expect(screen.getByText(/Live text analysis is unavailable/)).toBeVisible();expect(screen.getByRole('button',{name:'Analyze text'})).toBeDisabled();fireEvent.click(screen.getByRole('tab',{name:/^Image/}));expect(screen.getByRole('button',{name:'Analyze image'})).toBeVisible();});
+it.each(['Human','AI'] as const)('shows actual %s result',async label=>{vi.stubGlobal('fetch',vi.fn().mockResolvedValue(Response.json(textFixture(label))));open();paste();fireEvent.click(screen.getByRole('button',{name:'Analyze text'}));expect(await screen.findByRole('heading',{name:`${label} classification`})).toBeVisible();expect(screen.getByText('80.0%')).toBeVisible();expect(screen.getByText(/not the percentage of AI-written words/)).toBeVisible();});
+it('validates, counts and clears without truncating',()=>{open();paste('a'.repeat(10001));expect(screen.getByRole('button',{name:'Analyze text'})).toBeDisabled();expect(screen.getByLabelText('Text to analyze')).toHaveValue('a'.repeat(10001));fireEvent.click(screen.getByRole('button',{name:'Clear text'}));expect(screen.getByLabelText('Text to analyze')).toHaveValue('');});
+it('handles unavailable inference without fake scores',async()=>{vi.stubGlobal('fetch',vi.fn().mockResolvedValue(Response.json({error:'Service unavailable'},{status:503})));open();paste();fireEvent.click(screen.getByRole('button',{name:'Analyze text'}));expect(await screen.findByRole('alert')).toHaveTextContent('Service unavailable');expect(screen.queryByText(/model score$/)).not.toBeInTheDocument();});
+it('prevents duplicate requests and preserves drafts across tabs',async()=>{let done!:(r:Response)=>void;const fetcher=vi.fn(()=>new Promise<Response>(r=>done=r));vi.stubGlobal('fetch',fetcher);open();paste();fireEvent.click(screen.getByRole('button',{name:'Analyze text'}));expect(screen.getByRole('tab',{name:/^Image/})).toBeDisabled();done(Response.json(textFixture()));await screen.findByText('Human classification');expect(fetcher).toHaveBeenCalledTimes(1);fireEvent.click(screen.getByRole('tab',{name:/^Image/}));fireEvent.click(screen.getByRole('tab',{name:/^Text/}));expect(screen.getByLabelText('Text to analyze')).toHaveValue(sampleText);});
+it('gives correct local-service recovery instructions without inventing a Fakespot key',()=>{open(false);expect(screen.getByText(/No API key is needed/)).toBeVisible();expect(screen.queryByText(/FAKESPOT_API_KEY/)).not.toBeInTheDocument();});

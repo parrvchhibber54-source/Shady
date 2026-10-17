@@ -1,0 +1,2 @@
+import {WAVEREP_REVISION} from '../lib/video-config';
+export function videoFixture(){return {provider:'WaveRep',checkpoint:'G4',source_revision:WAVEREP_REVISION,coverage:'all_decoded_frames',crop:504,duration:.75,frames:[{index:0,timestamp:0,llr:-6},{index:1,timestamp:.25,llr:2},{index:2,timestamp:.5,llr:1}],mean_llr:-1,sigmoid_mean_llr:1/(1+Math.exp(1)),synthetic_frame_count:2,frame_count:3,processing_seconds:.1,device:'cpu'};}

@@ -70,9 +70,11 @@ The browser never receives provider keys or calls the Python services directly. 
 
 ### 1. Install the web app and set local credentials
 
-From the repository root:
+Clone the repository, then install the web app:
 
 ```sh
+git clone https://github.com/parrvchhibber54-source/Shady.git
+cd Shady
 npm ci
 cp .env.example .env.local
 ```
@@ -117,10 +119,10 @@ The G4 checkpoint is about 330 MiB. Allow several GB of disk for the environment
 npm run dev
 
 # Terminal 2: English text detector
-./scripts/text-service.sh
+sh scripts/text-service.sh
 
 # Terminal 3: video detector
-./scripts/video-service.sh
+sh scripts/video-service.sh
 ```
 
 Open **http://127.0.0.1:3000**. Health endpoints: **http://127.0.0.1:8001/health** and **http://127.0.0.1:8002/health**. Reload the analysis page after a Python service becomes ready. The scripts bind services to loopback, not your public network. Stop each with Ctrl+C.

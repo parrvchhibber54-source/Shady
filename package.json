@@ -27,5 +27,11 @@
     "@testing-library/react": "^16.0.0",
     "@testing-library/jest-dom": "^6.0.0",
     "jsdom": "^26.0.0"
-  }
+  },
+  "description": "AI-content analysis for images, English text, voice and video.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/parrvchhibber54-source/Shady.git"
+  },
+  "homepage": "https://github.com/parrvchhibber54-source/Shady#readme"
 }

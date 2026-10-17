@@ -1,0 +1,6 @@
+# Reuse Shady's CPU torch/HTTP runtime without changing the text model.
+-r ../text-service/requirements.lock.txt
+timm==1.0.12
+torchvision==0.22.0
+av==16.0.1
+python-multipart==0.0.20

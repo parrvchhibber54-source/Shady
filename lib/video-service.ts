@@ -1,0 +1,4 @@
+import 'server-only';
+import {WAVEREP_REVISION} from './video-config';
+export function videoUrl(path:string){const url=new URL(process.env.WAVEREP_SERVICE_URL?.trim()||'http://127.0.0.1:8002');if(!['http:','https:'].includes(url.protocol)||url.username||url.password||url.search||url.hash)throw new Error('Invalid video service URL');return new URL(path,url).toString();}
+export async function videoStatus(){try{const r=await fetch(videoUrl('/health'),{cache:'no-store',signal:AbortSignal.timeout(1500),redirect:'error'});if(!r.ok)throw new Error();const d=await r.json();if(d.status!=='ready'||d.provider!=='WaveRep'||d.source_revision!==WAVEREP_REVISION||typeof d.max_seconds!=='number'||!Number.isFinite(d.max_seconds)||d.max_seconds<=0||d.max_seconds>120)throw new Error();return {available:true,maxSeconds:d.max_seconds};}catch{return {available:false,maxSeconds:120};}}
